@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
-import { Project, Message, AIState } from '../types';
-import { ChatMessage } from '../components/GeminiChat';
+import { Project, Message, AIState } from '@/app/types';
+import { ChatMessage } from '@/app/components/GeminiChat';
 
 const INITIAL_AI_STATE: AIState = {
     summary: [],
