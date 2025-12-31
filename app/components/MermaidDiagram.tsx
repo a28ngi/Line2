@@ -5,9 +5,18 @@ import mermaid from 'mermaid';
 
 mermaid.initialize({
     startOnLoad: false,
-    theme: 'default',
+    theme: 'base',
+    themeVariables: {
+        primaryColor: '#ffffff',
+        primaryTextColor: '#1e293b',
+        primaryBorderColor: '#6366f1',
+        lineColor: '#94a3b8',
+        secondaryColor: '#f8fafc',
+        tertiaryColor: '#f1f5f9',
+        fontFamily: 'ui-sans-serif, system-ui, sans-serif',
+        fontSize: '14px',
+    },
     securityLevel: 'loose',
-    fontFamily: 'ui-sans-serif, system-ui, sans-serif',
 });
 
 interface MermaidDiagramProps {

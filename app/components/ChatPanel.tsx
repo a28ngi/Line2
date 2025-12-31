@@ -1,10 +1,9 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { Send, User, Users, Settings, Plus, Smile, Gift, Reply, Trash2, ThumbsUp, ThumbsDown, Heart, Circle, X as XIcon, MoreHorizontal } from 'lucide-react';
+import { Send, User, Users, Settings, Plus, Smile, Reply, Trash2, X as XIcon } from 'lucide-react';
 import { Message } from '../types';
 import { clsx } from 'clsx';
-// Since I don't see radix installed, I'll build a simple custom popover or static list for now, or just simple buttons on hover.
 
 interface ChatPanelProps {
     messages: Message[];
@@ -14,7 +13,7 @@ interface ChatPanelProps {
     onOpenSettings: () => void;
 }
 
-const REACTIONS = ['👍', '👎', '⭕', '❌', '❤️'];
+const REACTIONS = ['👍', '👎', '❤️', '🔥', '🎉'];
 
 export function ChatPanel({ messages, onSendMessage, onReact, onDelete, onOpenSettings }: ChatPanelProps) {
     const [inputText, setInputText] = useState('');
@@ -49,128 +48,119 @@ export function ChatPanel({ messages, onSendMessage, onReact, onDelete, onOpenSe
     };
 
     return (
-        <div className="flex flex-col h-full bg-[#313338] text-[#dbdee1]">
-            {/* Discord Header */}
-            <header className="h-12 border-b border-[#26272d] bg-[#313338] flex items-center justify-between px-4 sticky top-0 z-10 shadow-sm shrink-0">
-                <div className="flex items-center gap-2">
-                    <Users size={20} className="text-[#80848e]" />
-                    <h1 className="font-bold text-white tracking-tight">Project Room</h1>
+        <div className="flex flex-col h-full bg-slate-50 text-slate-800 font-sans">
+            {/* Header */}
+            <header className="h-16 border-b border-gray-200 bg-white/80 backdrop-blur-md flex items-center justify-between px-6 sticky top-0 z-10 shrink-0">
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-600">
+                        <Users size={20} />
+                    </div>
+                    <div>
+                        <h1 className="font-bold text-slate-900 leading-tight">Project Chat</h1>
+                        <p className="text-xs text-slate-500 font-medium">Team collaboration</p>
+                    </div>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
                     {/* User Toggle */}
-                    <div className="bg-[#1e1f22] p-0.5 rounded flex text-xs font-medium">
+                    <div className="bg-slate-100 p-1 rounded-lg flex text-xs font-semibold shadow-inner">
                         <button
                             onClick={() => setCurrentUser('me')}
                             className={clsx(
-                                "px-3 py-1 rounded transition-all flex items-center gap-1.5",
-                                currentUser === 'me' ? "bg-[#404249] text-white" : "text-[#949ba4] hover:bg-[#35373c] hover:text-[#dbdee1]"
+                                "px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5",
+                                currentUser === 'me' ? "bg-white text-indigo-600 shadow-sm" : "text-slate-500 hover:text-slate-700"
                             )}
                         >
-                            <User size={12} /> Me
+                            <User size={14} /> Me
                         </button>
                         <button
                             onClick={() => setCurrentUser('partner')}
                             className={clsx(
-                                "px-3 py-1 rounded transition-all flex items-center gap-1.5",
-                                currentUser === 'partner' ? "bg-[#404249] text-white" : "text-[#949ba4] hover:bg-[#35373c] hover:text-[#dbdee1]"
+                                "px-3 py-1.5 rounded-md transition-all flex items-center gap-1.5",
+                                currentUser === 'partner' ? "bg-white text-rose-500 shadow-sm" : "text-slate-500 hover:text-slate-700"
                             )}
                         >
-                            <Users size={12} /> Partner
+                            <Users size={14} /> Partner
                         </button>
                     </div>
 
-                    <button onClick={onOpenSettings} className="text-[#b5bac1] hover:text-[#dbdee1] transition-colors">
+                    <button onClick={onOpenSettings} className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors">
                         <Settings size={20} />
                     </button>
                 </div>
             </header>
 
             {/* Message List */}
-            <div className="flex-1 overflow-y-auto px-4 pt-4 space-y-[0.125rem] scrollbar-thin scrollbar-thumb-[#1a1b1e] scrollbar-track-[#2b2d31]">
+            <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
                 {messages.length === 0 && (
-                    <div className="h-full flex flex-col items-center justify-center text-[#949ba4] space-y-4">
-                        <div className="w-16 h-16 bg-[#41434a] rounded-full flex items-center justify-center">
-                            <span className="text-3xl">#</span>
+                    <div className="h-full flex flex-col items-center justify-center text-slate-400 space-y-4 opacity-60">
+                        <div className="w-20 h-20 bg-slate-100 rounded-full flex items-center justify-center">
+                            <Smile size={40} className="text-slate-300" />
                         </div>
                         <div className="text-center">
-                            <h3 className="text-2xl font-bold text-white mb-2">Welcome</h3>
+                            <h3 className="text-xl font-semibold text-slate-600 mb-1">Welcome!</h3>
                             <p className="text-sm">Start the conversation here.</p>
                         </div>
                     </div>
                 )}
                 {messages.map((msg, index) => {
+                    const isMe = msg.sender === 'me';
                     const isSequence = index > 0 && messages[index - 1].sender === msg.sender && !msg.replyTo;
                     const replyParent = msg.replyTo ? messages.find(m => m.id === msg.replyTo) : null;
 
                     return (
-                        <div key={msg.id} className={clsx("group flex flex-col pr-4 -mx-4 px-4 py-0.5 hover:bg-[#2e3035] relative", isSequence ? "mt-0.5" : "mt-4")}>
+                        <div key={msg.id} className={clsx("group flex flex-col max-w-[85%]", isMe ? "ml-auto items-end" : "mr-auto items-start", isSequence ? "mt-1" : "mt-6")}>
 
                             {/* Reply Context */}
                             {replyParent && (
-                                <div className="flex items-center gap-2 mb-1 ml-11 opacity-60 text-xs">
-                                    <div className="w-8 border-t-2 border-l-2 border-[#4e5058] h-3 rounded-tl-md shrink-0 mb-[-6px]" />
-                                    <span className="text-[#dbdee1] font-medium mr-1">@{replyParent.sender === 'me' ? 'Me' : 'Partner'}</span>
-                                    <span className="truncate max-w-[300px] text-[#dbdee1]">{replyParent.text}</span>
+                                <div className={clsx("flex items-center gap-2 mb-1 text-xs opacity-70", isMe ? "mr-2 flex-row-reverse" : "ml-2")}>
+                                    <div className="w-1 h-3 rounded-full bg-slate-300" />
+                                    <span className="font-medium text-slate-600">Reply to {replyParent.sender === 'me' ? 'Me' : 'Partner'}</span>
+                                    <span className="truncate max-w-[150px] text-slate-500 italic">"{replyParent.text}"</span>
                                 </div>
                             )}
 
-                            <div className="flex gap-4 items-start relative">
-                                {/* Actions (Hover) */}
-                                <div className="absolute right-0 top-[-8px] bg-[#313338] shadow-sm border border-[#26272d] rounded flex items-center p-0.5 opacity-0 group-hover:opacity-100 transition-opacity z-10">
-                                    {REACTIONS.map(emoji => (
-                                        <button
-                                            key={emoji}
-                                            onClick={() => onReact(msg.id, emoji)}
-                                            className="p-1.5 hover:bg-[#404249] rounded transition-colors text-base"
-                                        >
-                                            {emoji}
-                                        </button>
-                                    ))}
-                                    <div className="w-[1px] h-4 bg-[#4e5058] mx-1" />
-                                    <button onClick={() => setReplyingTo(msg)} className="p-1.5 hover:bg-[#404249] rounded text-[#b5bac1] hover:text-[#dbdee1]" title="Reply">
-                                        <Reply size={16} />
-                                    </button>
-                                    <button onClick={() => onDelete(msg.id)} className="p-1.5 hover:bg-[#da373c] hover:text-white rounded text-[#b5bac1]" title="Delete">
-                                        <Trash2 size={16} />
-                                    </button>
-                                </div>
-
+                            <div className={clsx("flex gap-3 items-end group", isMe ? "flex-row-reverse" : "flex-row")}>
                                 {/* Avatar */}
-                                <div className={clsx("w-10 h-10 shrink-0 cursor-pointer hover:drop-shadow-sm active:translate-y-[1px]", isSequence ? "opacity-0 h-0" : "")}>
-                                    {!isSequence && (
-                                        msg.sender === 'me' ? (
-                                            <div className="w-10 h-10 rounded-full bg-[#5865f2] flex items-center justify-center text-white">
-                                                <User size={20} />
-                                            </div>
-                                        ) : (
-                                            <div className="w-10 h-10 rounded-full bg-[#f23f42] flex items-center justify-center text-white">
-                                                <Users size={20} />
-                                            </div>
-                                        )
-                                    )}
+                                <div className={clsx("w-8 h-8 shrink-0 rounded-full flex items-center justify-center text-white shadow-sm ring-2 ring-white", isSequence ? "opacity-0 h-0 w-8" : "", isMe ? "bg-indigo-500" : "bg-rose-500")}>
+                                    {!isSequence && (isMe ? <User size={14} /> : <Users size={14} />)}
                                 </div>
 
-                                {/* Content */}
-                                <div className="flex-1 min-w-0">
-                                    {!isSequence && (
-                                        <div className="flex items-center gap-2">
-                                            <span className={clsx("font-medium hover:underline cursor-pointer", msg.sender === 'me' ? "text-white" : "text-white")}>
-                                                {msg.sender === 'me' ? 'Me' : 'Partner'}
-                                            </span>
-                                            <span className="text-xs text-[#949ba4] ml-1">{msg.timestamp}</span>
-                                        </div>
+                                <div className="relative max-w-full">
+                                    {/* Sender Name (First in sequence only) */}
+                                    {!isSequence && !isMe && (
+                                        <span className="text-[10px] text-slate-400 font-bold ml-1 mb-1 block uppercase tracking-wider">Partner</span>
                                     )}
-                                    <p className={clsx("text-[#dbdee1] whitespace-pre-wrap break-words leading-[1.375rem]", isSequence && "ml-0")}>
+
+                                    {/* Bubble */}
+                                    <div className={clsx(
+                                        "px-4 py-2.5 rounded-2xl shadow-sm text-[15px] leading-relaxed break-words relative transition-transform hover:scale-[1.01] origin-bottom-left",
+                                        isMe
+                                            ? "bg-indigo-600 text-white rounded-tr-sm"
+                                            : "bg-white text-slate-800 border border-slate-100 rounded-tl-sm"
+                                    )}>
                                         {msg.text}
-                                    </p>
+                                    </div>
+
+                                    {/* Timestamp & Actions */}
+                                    <div className={clsx("absolute top-0 bottom-0 flex items-center opacity-0 group-hover:opacity-100 transition-opacity px-2", isMe ? "right-full flex-row-reverse" : "left-full")}>
+                                        <div className="flex items-center gap-1 bg-white shadow-sm border border-slate-100 rounded-full p-1 transform scale-90">
+                                            {REACTIONS.map(emoji => (
+                                                <button key={emoji} onClick={() => onReact(msg.id, emoji)} className="hover:scale-125 transition-transform text-sm p-0.5">{emoji}</button>
+                                            ))}
+                                            <div className="w-px h-3 bg-slate-200 mx-1" />
+                                            <button onClick={() => setReplyingTo(msg)} className="text-slate-400 hover:text-indigo-500 p-1"><Reply size={14} /></button>
+                                            <button onClick={() => onDelete(msg.id)} className="text-slate-400 hover:text-red-500 p-1"><Trash2 size={14} /></button>
+                                        </div>
+                                        <span className="text-[10px] text-slate-300 font-medium whitespace-nowrap mx-2">{msg.timestamp}</span>
+                                    </div>
 
                                     {/* Reactions Display */}
                                     {msg.reactions && Object.keys(msg.reactions).length > 0 && (
-                                        <div className="flex flex-wrap gap-1 mt-1">
+                                        <div className={clsx("flex flex-wrap gap-1 mt-1.5", isMe ? "justify-end" : "justify-start")}>
                                             {Object.entries(msg.reactions).map(([emoji, count]) => (
-                                                <div key={emoji} className="flex items-center gap-1.5 bg-[#2b2d31] hover:bg-[#35373c] border border-[#1e1f22] rounded-[4px] px-1.5 py-0.5 cursor-pointer transition-colors">
-                                                    <span className="text-sm">{emoji}</span>
-                                                    <span className="text-xs font-bold text-[#b5bac1]">{count}</span>
+                                                <div key={emoji} className="flex items-center gap-1 bg-white shadow-sm border border-slate-100 rounded-full px-2 py-0.5 text-xs font-medium text-slate-600 scale-95 origin-top">
+                                                    <span>{emoji}</span>
+                                                    <span className="text-slate-400">{count}</span>
                                                 </div>
                                             ))}
                                         </div>
@@ -184,22 +174,20 @@ export function ChatPanel({ messages, onSendMessage, onReact, onDelete, onOpenSe
             </div>
 
             {/* Input Area */}
-            <div className="px-4 pb-6 bg-[#313338] shrink-0 z-20">
+            <div className="p-4 bg-white/50 backdrop-blur-sm border-t border-slate-100">
                 {replyingTo && (
-                    <div className="flex items-center justify-between bg-[#2b2d31] p-2 rounded-t-lg mx-2 border-b border-[#383a40]">
-                        <div className="flex items-center gap-2 text-sm text-[#dbdee1]">
-                            <span className="text-[#949ba4]">Replying to</span>
-                            <span className="font-medium">@{replyingTo.sender === 'me' ? 'Me' : 'Partner'}</span>
-                        </div>
-                        <button onClick={() => setReplyingTo(null)} className="text-[#949ba4] hover:text-[#dbdee1]">
-                            <XIcon size={16} />
-                        </button>
+                    <div className="flex items-center justify-between bg-indigo-50 text-indigo-900 px-4 py-2 rounded-t-xl text-sm border-b border-indigo-100 mx-1">
+                        <span className="flex items-center gap-2 truncate">
+                            <Reply size={14} className="text-indigo-500" />
+                            Replying to <span className="font-bold">{replyingTo.sender === 'me' ? 'Me' : 'Partner'}</span>
+                        </span>
+                        <button onClick={() => setReplyingTo(null)} className="text-indigo-400 hover:text-indigo-600"><XIcon size={14} /></button>
                     </div>
                 )}
 
-                <div className={clsx("relative bg-[#383a40] rounded-lg", replyingTo ? "rounded-t-none" : "")}>
-                    <button className="absolute left-4 top-1/2 -translate-y-1/2 text-[#b5bac1] hover:text-[#dbdee1] p-1 bg-[#b5bac1]/0 hover:bg-[#b5bac1]/10 rounded-full transition-all">
-                        <Plus size={20} strokeWidth={2.5} />
+                <div className={clsx("relative bg-white border border-slate-200 shadow-sm rounded-2xl focus-within:ring-2 focus-within:ring-indigo-100 focus-within:border-indigo-400 transition-all overflow-hidden", replyingTo ? "rounded-t-none" : "")}>
+                    <button className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-indigo-500 p-1.5 hover:bg-indigo-50 rounded-full transition-colors">
+                        <Plus size={20} />
                     </button>
 
                     <form onSubmit={handleSend} className="w-full">
@@ -207,18 +195,16 @@ export function ChatPanel({ messages, onSendMessage, onReact, onDelete, onOpenSe
                             type="text"
                             value={inputText}
                             onChange={(e) => setInputText(e.target.value)}
-                            onKeyDown={(e) => {
-                                if (e.key === 'Escape') setReplyingTo(null);
-                            }}
-                            placeholder={`Message #${currentUser === 'me' ? 'me' : 'partner'}`}
-                            className="w-full bg-transparent text-[#dbdee1] placeholder-[#949ba4] border-none px-14 py-3 h-[44px] focus:outline-none"
+                            onKeyDown={(e) => { if (e.key === 'Escape') setReplyingTo(null); }}
+                            placeholder={`Message #${currentUser}...`}
+                            className="w-full bg-transparent text-slate-800 placeholder-slate-400 border-none pl-12 pr-12 py-3.5 focus:outline-none"
                         />
                         <button
                             type="submit"
-                            className="absolute right-4 top-1/2 -translate-y-1/2 text-[#b5bac1] hover:text-[#dbdee1]"
                             disabled={!inputText.trim()}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-white bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-200 disabled:text-slate-400 p-2 rounded-xl transition-all shadow-sm"
                         >
-                            <Send size={20} />
+                            <Send size={18} />
                         </button>
                     </form>
                 </div>

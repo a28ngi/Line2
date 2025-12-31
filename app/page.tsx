@@ -266,7 +266,7 @@ export default function Home() {
     const handleMouseUp = () => { isResizing.current = false; document.body.style.cursor = 'default'; document.body.style.userSelect = 'auto'; window.removeEventListener('mousemove', handleMouseMove); window.removeEventListener('mouseup', handleMouseUp); };
 
     return (
-        <div className="flex h-screen w-screen overflow-hidden bg-slate-900">
+        <div className="flex h-screen w-screen overflow-hidden bg-slate-50">
             {/* Sidebar */}
             <ProjectSidebar
                 projects={projects}
