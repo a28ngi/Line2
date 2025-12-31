@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from 'react';
 import { Send, User, Users, Settings, Plus, Smile, Gift, Reply, Trash2, ThumbsUp, ThumbsDown, Heart, Circle, X as XIcon, MoreHorizontal } from 'lucide-react';
 import { Message } from '../types';
 import { clsx } from 'clsx';
-import * as Popover from '@radix-ui/react-popover'; // Assuming radix or simple implementation
 // Since I don't see radix installed, I'll build a simple custom popover or static list for now, or just simple buttons on hover.
 
 interface ChatPanelProps {
