@@ -10,6 +10,7 @@ const INITIAL_AI_STATE: AIState = {
     todos: [],
     suggestions: "Waiting for conversation to start...",
     mindmap: null,
+    structure: [], // Initial empty tree
 };
 
 export function useSupabase(initialProjects: Project[]) {
@@ -85,7 +86,8 @@ export function useSupabase(initialProjects: Project[]) {
                             text: msg.text,
                             timestamp: msg.timestamp,
                             replyTo: msg.reply_to,
-                            reactions: msg.reactions
+                            reactions: msg.reactions,
+                            nodeId: msg.node_id
                         }]
                     }));
                 } else if (payload.eventType === 'UPDATE') {
@@ -161,7 +163,8 @@ export function useSupabase(initialProjects: Project[]) {
             text: message.text,
             timestamp: message.timestamp,
             reply_to: message.replyTo,
-            reactions: message.reactions
+            reactions: message.reactions,
+            node_id: message.nodeId
         });
     };
 
@@ -205,7 +208,7 @@ export function useSupabase(initialProjects: Project[]) {
                     ...prev,
                     [activeProjectId]: msgs.map((m: any) => ({
                         id: m.id, sender: m.sender, text: m.text, timestamp: m.timestamp,
-                        replyTo: m.reply_to, reactions: m.reactions
+                        replyTo: m.reply_to, reactions: m.reactions, nodeId: m.node_id
                     }))
                 }));
             }

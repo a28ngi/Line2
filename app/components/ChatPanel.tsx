@@ -37,7 +37,7 @@ export function ChatPanel({ messages, onSendMessage, onReact, onDelete, onOpenSe
             id: Date.now().toString(),
             sender: currentUser,
             text: inputText,
-            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            timestamp: new Date().toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
             replyTo: replyingTo?.id || null,
             reactions: {}
         };
