@@ -23,6 +23,7 @@ interface InteractiveMapProps {
     activeNodeId: string | null;
     onNodeClick: (nodeId: string) => void;
     onStructureChange: (newStructure: ChatNode[]) => void;
+    onRenameNode?: (nodeId: string, newLabel: string) => void;
 }
 
 // Custom Node to match design
@@ -77,7 +78,7 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'TB') => 
     return { nodes, edges };
 };
 
-export function InteractiveMap({ structure, activeNodeId, onNodeClick, onStructureChange }: InteractiveMapProps) {
+export function InteractiveMap({ structure, activeNodeId, onNodeClick, onStructureChange, onRenameNode }: InteractiveMapProps) {
     const [nodes, setNodes, onNodesChange] = useNodesState([]);
     const [edges, setEdges, onEdgesChange] = useEdgesState([]);
 

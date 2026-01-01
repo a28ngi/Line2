@@ -23,6 +23,7 @@ export type ChatNode = {
   type?: 'master' | 'topic';
   position?: { x: number; y: number };
   context?: string;
+  color?: string;
 };
 
 export type AIState = {

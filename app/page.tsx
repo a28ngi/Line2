@@ -90,8 +90,20 @@ export default function Home() {
     };
 
     const handleToggleCollapse = (nodeId: string) => {
-        const newStructure = currentAIState.structure.map(n =>
+        const structure = currentAIState.structure || [];
+        const newStructure = structure.map(n =>
             n.id === nodeId ? { ...n, isCollapsed: !n.isCollapsed } : n
+        );
+        updateAIState(activeProjectId, { ...currentAIState, structure: newStructure });
+    };
+
+    // Color Palette
+    const BRANCH_COLORS = ['#8b5cf6', '#ec4899', '#eab308', '#06b6d4', '#84cc16'];
+
+    const handleRenameNode = (nodeId: string, newLabel: string) => {
+        const structure = currentAIState.structure || [];
+        const newStructure = structure.map(n =>
+            n.id === nodeId ? { ...n, label: newLabel } : n
         );
         updateAIState(activeProjectId, { ...currentAIState, structure: newStructure });
     };
@@ -106,7 +118,8 @@ export default function Home() {
 
     // Mock Mind Map Generation
     const handleRunMindMap = () => {
-        if (currentAIState.structure.length === 0) {
+        const currentStructure = currentAIState.structure || [];
+        if (currentStructure.length === 0) {
             // Initial Tree Generation
             const root1 = Date.now().toString();
 
@@ -133,7 +146,7 @@ export default function Home() {
                 return;
             }
 
-            const parentNode = currentAIState.structure.find(n => n.id === parentId);
+            const parentNode = currentStructure.find(n => n.id === parentId);
             const parentContext = parentNode ? `Context from ${parentNode.label}` : "Root Context";
 
             const newId = Date.now().toString();
@@ -147,7 +160,7 @@ export default function Home() {
                 position: { x: (parentNode?.position?.x || 0) + 200, y: (parentNode?.position?.y || 0) + 50 }
             };
 
-            const newStructure = [...currentAIState.structure, newNode];
+            const newStructure = [...currentStructure, newNode];
             const updatedStructure = newStructure.map(n =>
                 n.id === parentId ? { ...n, children: [...n.children, newId] } : n
             );
@@ -191,7 +204,7 @@ export default function Home() {
 
             {/* 2. Tree Navigation (Secondary Sidebar) */}
             <ChatTreeSidebar
-                structure={currentAIState.structure}
+                structure={currentAIState.structure || []}
                 activeNodeId={activeNodeId}
                 onSelectNode={handleSelectNode}
                 onToggleCollapse={handleToggleCollapse}
@@ -243,12 +256,13 @@ export default function Home() {
                             </button>
                         </div>
                         <div className="flex-1 relative">
-                            {currentAIState.structure.length > 0 ? (
+                            {(currentAIState.structure || []).length > 0 ? (
                                 <InteractiveMap
-                                    structure={currentAIState.structure}
+                                    structure={currentAIState.structure || []}
                                     activeNodeId={activeNodeId}
                                     onNodeClick={handleNodeClick}
                                     onStructureChange={handleStructureChange}
+                                    onRenameNode={handleRenameNode}
                                 />
                             ) : (
                                 <div className="flex flex-col items-center justify-center h-full text-slate-400 space-y-3">
