@@ -18,7 +18,8 @@ export function ChatTreeSidebar({ structure, activeNodeId, onSelectNode, onToggl
         const node = structure.find(n => n.id === nodeId);
         if (!node) return null;
 
-        const hasChildren = node.children.length > 0;
+        const children = node.children || [];
+        const hasChildren = children.length > 0;
         const isActive = activeNodeId === node.id;
 
         return (
@@ -45,9 +46,9 @@ export function ChatTreeSidebar({ structure, activeNodeId, onSelectNode, onToggl
                     <span className="truncate">{node.label}</span>
                 </div>
 
-                {!node.isCollapsed && node.children.length > 0 && (
+                {!node.isCollapsed && hasChildren && (
                     <div className="border-l border-slate-100 ml-4">
-                        {node.children.map(childId => renderNode(childId, depth + 1))}
+                        {children.map(childId => renderNode(childId, depth + 1))}
                     </div>
                 )}
             </div>
@@ -55,7 +56,7 @@ export function ChatTreeSidebar({ structure, activeNodeId, onSelectNode, onToggl
     };
 
     // Root nodes are those with null parentId
-    const rootNodes = structure.filter(n => n.parentId === null);
+    const rootNodes = (structure || []).filter(n => n.parentId === null);
 
     return (
         <div className="w-64 bg-slate-50 border-r border-slate-200 flex flex-col h-full flex-shrink-0">

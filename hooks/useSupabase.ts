@@ -232,7 +232,7 @@ export function useSupabase(initialProjects: Project[]) {
         setActiveProjectId,
         currentMessages: messagesMap[activeProjectId] || [],
         currentGeminiMessages: geminiMessagesMap[activeProjectId] || [],
-        currentAIState: aiStatesMap[activeProjectId] || INITIAL_AI_STATE,
+        currentAIState: { ...INITIAL_AI_STATE, ...(aiStatesMap[activeProjectId] || {}) },
         createProject,
         renameProject,
         sendMessage,

@@ -107,33 +107,68 @@ export default function Home() {
     // Mock Mind Map Generation
     const handleRunMindMap = () => {
         if (currentAIState.structure.length === 0) {
+            // Initial Tree Generation
             const root1 = Date.now().toString();
-            const child1 = (Date.now() + 1).toString();
-            const child2 = (Date.now() + 2).toString();
-            const child3 = (Date.now() + 3).toString();
 
             const newNodes: ChatNode[] = [
-                { id: root1, label: 'Central Idea', parentId: null, children: [child1, child2], isCollapsed: false },
-                { id: child1, label: 'Key Concept A', parentId: root1, children: [child3], isCollapsed: false },
-                { id: child2, label: 'Key Concept B', parentId: root1, children: [], isCollapsed: false },
-                { id: child3, label: 'Detail A.1', parentId: child1, children: [], isCollapsed: false }
+                { id: root1, label: 'Central Idea', parentId: null, children: [], isCollapsed: false, position: { x: 0, y: 0 } },
             ];
             updateAIState(activeProjectId, { ...currentAIState, structure: newNodes, mindmap: 'generated' });
+
+            // Initial System Message for Root
+            const sysMsg: Message = {
+                id: Date.now().toString(),
+                sender: 'partner', // System/Partner
+                text: "Discuss the central idea here. Click 'Add Node' to branch out.",
+                timestamp: new Date().toLocaleString(),
+                nodeId: root1
+            };
+            handleSendMessage(sysMsg, null); // Utilize existing handler logic but with specific nodeId
+
         } else {
             // Add a random node to current active node or root
             const parentId = activeNodeId;
-            if (!parentId) return;
+            if (!parentId) {
+                alert("Select a node to branch from.");
+                return;
+            }
+
+            const parentNode = currentAIState.structure.find(n => n.id === parentId);
+            const parentContext = parentNode ? `Context from ${parentNode.label}` : "Root Context";
 
             const newId = Date.now().toString();
-            const newNode: ChatNode = { id: newId, label: 'New Node', parentId: parentId, children: [], isCollapsed: false };
+            const newNode: ChatNode = {
+                id: newId,
+                label: 'New Topic',
+                parentId: parentId,
+                children: [],
+                isCollapsed: false,
+                context: `Inherited: ${parentContext}`,
+                position: { x: (parentNode?.position?.x || 0) + 200, y: (parentNode?.position?.y || 0) + 50 }
+            };
 
             const newStructure = [...currentAIState.structure, newNode];
-            // Update parent's children
             const updatedStructure = newStructure.map(n =>
                 n.id === parentId ? { ...n, children: [...n.children, newId] } : n
             );
 
             updateAIState(activeProjectId, { ...currentAIState, structure: updatedStructure });
+
+            // INHERITANCE: Inject Initial System Message in new Child Chat
+            const contextMsg: Message = {
+                id: Date.now().toString(),
+                sender: 'partner',
+                text: `[System] Created new branch from "${parentNode?.label}".\n\nInherited Context: ${parentContext}\n\nWhat specific aspect would you like to explore?`,
+                timestamp: new Date().toLocaleString(),
+                nodeId: newId
+            };
+
+            // We need to bypass handleSendMessage's 'activeNodeId' injection because we are creating for a *new* node
+            // Direct sendMessage call:
+            sendMessage(activeProjectId, contextMsg);
+
+            // Switch to new node
+            setActiveNodeId(newId);
         }
     };
 

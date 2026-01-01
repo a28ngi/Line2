@@ -21,6 +21,8 @@ export type ChatNode = {
   children: string[];
   isCollapsed: boolean;
   type?: 'master' | 'topic';
+  position?: { x: number; y: number };
+  context?: string;
 };
 
 export type AIState = {
